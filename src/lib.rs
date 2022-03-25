@@ -9,6 +9,7 @@ pub fn run_sim() {
 
 #[derive(Debug)]
 struct Airfoil {
+    name: String,
     points: Vec<Point>,
     panels: Vec<Panel>,
     n_panels: u32,
@@ -16,16 +17,25 @@ struct Airfoil {
 
 impl Airfoil {
     pub fn from_file(path: &String) -> Self {
+        // from .dat file in the "Selig format"
         let file_content = fs::read_to_string(path).expect("Unable to open .dat file");
         let mut points: Vec<Point> = Vec::new(); 
+        let mut header = true;
+        let mut name = String::from("Profile");
         for c in file_content.lines() {
             let mut num = c.split_whitespace();
-            let x: f64 = num.next().unwrap().parse().unwrap();
-            let y: f64 = num.next().unwrap().parse().unwrap();
-            points.push(Point::new(x, y));
+            if header {
+                name = num.next().unwrap().to_string(); 
+                name += num.next().unwrap();
+                header = false;
+            } else {
+                let x: f64 = num.next().unwrap().parse().unwrap();
+                let y: f64 = num.next().unwrap().parse().unwrap();
+                points.push(Point::new(x, y));
+            }
         }
-        let mut panels: Vec<Panel> = Vec::new();
-        Airfoil {points, panels, n_panels: 0}
+        let panels: Vec<Panel> = Vec::new();
+        Airfoil {name, points, panels, n_panels: 0}
     }
 
     pub fn chord(&self) -> f64 {
@@ -90,6 +100,7 @@ impl Airfoil {
 #[test]
 fn chord_calculation() {
     let airfoil = Airfoil{
+        name: String::from("Test"),
         points: vec![
             Point::new(3.0,4.0),
             Point::new(5.0,0.0),
@@ -106,6 +117,7 @@ fn chord_calculation() {
 #[test]
 fn chord_center_test() {
     let airfoil = Airfoil{
+        name: String::from("Test"),
         points: vec![
             Point::new(3.0,4.0),
             Point::new(5.0,0.0),
@@ -119,6 +131,22 @@ fn chord_center_test() {
     assert_eq!(4.5, airfoil.chord_center_x());
 }
 
+#[test]
+fn dat_parsing() {
+    let path = String::from("airfoils/testairfoil.dat");
+    let testfoil = Airfoil::from_file(&path);
+    let pts = vec![
+        Point::new(0.123456, 1.123456),
+        Point::new(1.123456, 0.123456),
+        Point::new(-1.123456, -0.123456),
+        Point::new(1.234567, -1.234567),
+        Point::new(-0.123456, 1.234567),
+    ];
+    assert_eq!(testfoil.name, String::from("TESTFOIL"));
+    for (p, pt) in testfoil.points.iter().zip(pts.iter()) {
+        assert_eq!(p, pt);
+    }
+}
 
 #[derive(Debug)]
 struct Panel {
@@ -155,7 +183,7 @@ impl Panel {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 struct Point {
     x: f64,
     y: f64,
