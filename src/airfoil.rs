@@ -1,9 +1,6 @@
 // Definition of the airfoil class
 
-mod airfoil {
-    struct Airfoil {
+pub struct Airfoil {
 
-        name: str,
-
-    }
+    pub name: String,
 }

@@ -1,10 +1,10 @@
 // Generation of naca profiles
 
-use rfoil::airfoil::Airfoil;
+use crate::airfoil::Airfoil;
 
-/// Generate a NACA 4-digit airfoil
-fn generate_naca_4(digit: u8) -> Airfoil {
+/// generate a naca 4-digit airfoil
+pub fn generate_naca_4(digit: u16) -> Airfoil {
 
-    
-
+    let name = format!("NACA {}", digit);
+    Airfoil{name}
 }
