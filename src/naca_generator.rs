@@ -27,29 +27,30 @@ pub fn generate_naca_4(digit: u16, n: u32) -> Airfoil {
                             .collect();
                         
     let theta = theta(&x, &yc);
+    dbg!(&yc);
 
     let xu: Vec<f64> = x.iter()
                         .zip(yt.iter())
                         .zip(theta.iter())
-                        .map(|((&x, &yt), &theta)| x - yt * theta.atan() )
+                        .map(|((&x, &yt), &theta)| x - yt * theta.sin() )
                         .collect();
 
     let yu: Vec<f64> = yc.iter()
                         .zip(&yt)
                         .zip(theta.iter())
-                        .map(|((&yc, &yt), &theta)| yc + yt * theta.atan())
+                        .map(|((&yc, &yt), &theta)| yc + yt * theta.cos())
                         .collect();
 
     let xl: Vec<f64> = x.iter()
                         .zip(&yt)
                         .zip(theta.iter())
-                        .map(|((&x, &yt), &theta)| x + yt * theta.atan())
+                        .map(|((&x, &yt), &theta)| x + yt * theta.sin())
                         .collect();
 
     let yl: Vec<f64> = yc.iter()
                         .zip(&yt)
                         .zip(theta.iter())
-                        .map(|((&yc, &yt), &theta)| yc - yt * theta.atan())
+                        .map(|((&yc, &yt), &theta)| yc - yt * theta.cos())
                         .collect();
 
     let root = BitMapBackend::new("0.png", (1000, (0.4/1.4*1000.0) as u32))
@@ -87,7 +88,7 @@ fn theta(x: &Vec<f64>, yc: &Vec<f64>) -> Vec<f64> {
 
     for i in 0..(x.len()-1) {
         let dyc: f64 = (yc[i+1]-yc[i])/(x[i+1]-x[i]);
-        theta.push(dyc);
+        theta.push(dyc.atan());
     }
     theta.push(0.0);
 
