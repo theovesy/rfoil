@@ -1,4 +1,4 @@
-# rFoil
+# rfoil
 
 A pure rust crate aimed at generating, fetching and manipulating airfoil data.
 
