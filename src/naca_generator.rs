@@ -1,20 +1,25 @@
 // Generation of naca profiles
 use crate::airfoil::Airfoil;
 
-use::plotters::prelude::*;
+fn parse_naca4(digit: &String) -> (f64, f64, f64) {
+
+    let m: f64 = digit[0..1].parse::<f64>().unwrap()/100.0;
+    let p: f64 = digit[1..2].parse::<f64>().unwrap()/10.0;
+    let t: f64 = digit[2..4].parse::<f64>().unwrap()/100.0;
+
+    (m, p, t)
+}
 
 /// generate a naca 4-digit airfoil
-pub fn generate_naca_4(digit: u16, n: u32) -> Airfoil {
+pub fn generate_naca_4(digit: String, n: u32) -> Airfoil {
 
     // digit must have 4 digits 
     // (this may change later to generate any naca airfoil in one function) 
-    if digit.to_string().len() != 4 {
+    if digit.len() != 4 {
         panic!("NACA 4-digit numbers must be 4-digits")
     }
 
-    let m = 0.0;
-    let p = 0.0;
-    let t = 0.12;
+    let (m, p, t) = parse_naca4(&digit);
 
 
     let x: Vec<f64> = chord_coord(n);
@@ -27,7 +32,6 @@ pub fn generate_naca_4(digit: u16, n: u32) -> Airfoil {
                             .collect();
                         
     let theta = theta(&x, &yc);
-    dbg!(&yc);
 
     let xu: Vec<f64> = x.iter()
                         .zip(yt.iter())
@@ -53,26 +57,8 @@ pub fn generate_naca_4(digit: u16, n: u32) -> Airfoil {
                         .map(|((&yc, &yt), &theta)| yc - yt * theta.cos())
                         .collect();
 
-    let root = BitMapBackend::new("0.png", (1000, (0.4/1.4*1000.0) as u32))
-        .into_drawing_area();
-    root.fill(&WHITE).unwrap(); 
-    
-    let mut chart = ChartBuilder::on(&root)
-        .build_cartesian_2d(-0.2..1.2, -0.2..0.2)
-        .unwrap();
-
-    chart.draw_series(LineSeries::new(
-        xu.iter().zip(yu.iter()).map(|(x, y)| (*x, *y)),
-        &RED
-    )).unwrap();
-
-    chart.draw_series(LineSeries::new(
-        xl.iter().zip(yl.iter()).map(|(x, y)| (*x, *y)),
-        &RED
-    )).unwrap();
-
-    let name = format!("NACA {}", digit);
-    Airfoil{name}
+    let name = format!("NACA_{}", digit);
+    Airfoil{name, x, yc, yt, xu, yu, xl, yl}
 }
 
 fn chord_coord(n: u32) -> Vec<f64> {
@@ -130,9 +116,19 @@ mod tests {
         use std::panic;
         use crate::naca_generator::generate_naca_4;
 
-        let actual: Airfoil = generate_naca_4(1234, 100);
-        assert_eq!(actual.name, "NACA 1234");
-        assert!(panic::catch_unwind(|| generate_naca_4(12345, 100)).is_err());
-        assert!(panic::catch_unwind(|| generate_naca_4(123, 100)).is_err());
+        let actual: Airfoil = generate_naca_4("2412".to_string(), 100);
+        assert_eq!(actual.name, "NACA_2412");
+        assert!(panic::catch_unwind(|| generate_naca_4("12345".to_string(), 100)).is_err());
+        assert!(panic::catch_unwind(|| generate_naca_4("123".to_string(), 100)).is_err());
+        actual.plot();
+    } 
+
+    #[test]
+    fn test_parse_naca4() {
+        use crate::naca_generator::parse_naca4;
+
+        assert_eq!((0.0,0.0,0.12), parse_naca4(&String::from("0012")));
+        assert_eq!((0.02,0.4,0.12), parse_naca4(&String::from("2412")));
     }
+
 }

@@ -5,6 +5,13 @@
 
 A pure rust crate aimed at generating, fetching and manipulating airfoil data.
 
+## rfoil is in early developement
+
+## Working features
+
+* NACA 4-digit generation
+* Airfoil plotting
+
 ## Features to be implemented :
 
 * Generate naca airfoils
