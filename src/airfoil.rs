@@ -1,6 +1,7 @@
 // Definition of the airfoil class
 use::plotters::prelude::*;
 
+/// Represents an Airfoil
 #[derive(Debug)]
 pub struct Airfoil {
 
@@ -19,14 +20,15 @@ pub struct Airfoil {
 }
 
 impl Airfoil {
-    /// Plots the airfoil's shape in a png image
-    pub fn plot(&self) {
-        let img_name = format!("{}.png", self.name);
-        let root = BitMapBackend::new(&img_name, (1000, (0.4/1.4*1000.0) as u32))
+    /// Plots the airfoil's shape in a svg image
+    pub fn plot_svg(&self) {
+        let img_name = format!("{}.svg", self.name);
+        let root = SVGBackend::new(&img_name, (1000, (0.4/1.4*1000.0) as u32))
             .into_drawing_area();
         root.fill(&WHITE).unwrap(); 
         
         let mut chart = ChartBuilder::on(&root)
+            .caption(self.name.clone(), ("Arial", 40))
             .build_cartesian_2d(-0.2..1.2, -0.2..0.2)
             .unwrap();
 
@@ -39,5 +41,12 @@ impl Airfoil {
             self.xl.iter().zip(self.yl.iter()).map(|(x, y)| (*x, *y)),
             &RED
         )).unwrap();
+
+        chart.draw_series(LineSeries::new(
+            self.x.iter().zip(self.yc.iter()).map(|(x, y)| (*x, *y)),
+            &BLUE
+        )).unwrap();
+
     }
+
 }

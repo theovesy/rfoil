@@ -1,6 +1,8 @@
 // Generation of naca profiles
 use crate::airfoil::Airfoil;
 
+use std::f64::consts::PI;
+
 fn parse_naca4(digit: &String) -> (f64, f64, f64) {
 
     let m: f64 = digit[0..1].parse::<f64>().unwrap()/100.0;
@@ -61,10 +63,16 @@ pub fn generate_naca_4(digit: String, n: u32) -> Airfoil {
     Airfoil{name, x, yc, yt, xu, yu, xl, yl}
 }
 
+/// Generate `x` coordinates along the chord
+/// To have points near the leading and trailing edges
+/// closer to each other, we compute $x$ with the formula
+/// $$x = \frac{1-\cos(\Beta)}{2}$$
+/// with $\Beta$ in $[0, \pi]$
 fn chord_coord(n: u32) -> Vec<f64> {
     let mut x: Vec<f64> = Vec::new();
-    for i in 0..n {
-        x.push(i as f64/(n as f64));
+    for i in 0..n { 
+        let b = PI*(i as f64)/(n as f64);
+        x.push((1.0 - b.cos())/2.0)
     }
     x
 }
@@ -120,7 +128,7 @@ mod tests {
         assert_eq!(actual.name, "NACA_2412");
         assert!(panic::catch_unwind(|| generate_naca_4("12345".to_string(), 100)).is_err());
         assert!(panic::catch_unwind(|| generate_naca_4("123".to_string(), 100)).is_err());
-        actual.plot();
+        actual.plot_svg();
     } 
 
     #[test]
