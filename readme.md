@@ -7,7 +7,7 @@ A pure rust crate aimed at generating, fetching and manipulating airfoil data.
 
 ## rfoil is in early developement
 
-[!(NACA_2412)]
+![](NACA_2412)
 
 ## Working features
 
