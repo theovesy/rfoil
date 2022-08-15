@@ -25,7 +25,6 @@ impl Airfoil {
         let img_name = format!("{}.svg", self.name);
         let root = SVGBackend::new(&img_name, (1000, (0.4/1.4*1000.0) as u32))
             .into_drawing_area();
-        root.fill(&WHITE).unwrap(); 
         
         let mut chart = ChartBuilder::on(&root)
             .caption(self.name.clone(), ("Arial", 40))
