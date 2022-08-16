@@ -2,6 +2,8 @@
 use::plotters::prelude::*;
 
 /// Represents an Airfoil
+/// Depending on where the airfoil comes from (generated, fetched, read from .dat file) 
+/// each field may or may not be available.
 #[derive(Debug)]
 pub struct Airfoil {
 
